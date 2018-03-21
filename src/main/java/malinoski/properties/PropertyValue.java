@@ -1,4 +1,4 @@
-package malinoski;
+package malinoski.properties;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -40,4 +40,5 @@ public class PropertyValue {
 		
 		return result;
 	}
+
 }
