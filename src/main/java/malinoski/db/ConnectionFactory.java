@@ -1,32 +1,56 @@
 package malinoski.db;
 
 import java.sql.DriverManager;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.postgresql.util.PSQLException;
+import java.util.InvalidPropertiesFormatException;
+import java.util.Properties;
 
-import malinoski.properties.PropertyValue;
+import org.postgresql.util.PSQLException;
 
 public class ConnectionFactory {
 
-	public static Connection getConnection() {
-		
-		Database database = getDatabase();
-		
+	private Properties prop;
+
+	public ConnectionFactory(String fileName) throws FileNotFoundException, IOException, InvalidPropertiesFormatException {
+		super();
+		this.setProperties(fileName);
+	}
+
+	private void setProperties(String fileName) throws FileNotFoundException, IOException, InvalidPropertiesFormatException {
+		this.prop = new Properties();
+
+		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
+
+		if (inputStream != null) {
+			this.prop.load(inputStream);
+		} else {
+			throw new FileNotFoundException("property file '" + this.prop + "' not found in the classpath");
+		}
+	}
+
+	public Connection getConnection() throws SQLException {		
+
 		// Testando o driver
 		try {
-			Class.forName(database.getDbDriver());
+			Class.forName(this.prop.getProperty("db_driver"));
 		} catch (ClassNotFoundException e) {
-			//System.out.println("Nao foi encontrado o driver!");
+			// System.out.println("Nao foi encontrado o driver!");
 			e.printStackTrace();
 			return null;
 		}
-		//System.out.println("Driver encontrado");
+		// System.out.println("Driver encontrado");
 
 		// Testando conexao
-		Connection connection = null;		
+		Connection connection = null;
 		try {
-			connection = DriverManager.getConnection("jdbc:"+database.getDbType()+"://" + database.getDbHost()+ ":" + database.getDbPort() + "/" + database.getDbName(), database.getDbUser(), database.getDbPassword());
+			connection = DriverManager.getConnection(
+					"jdbc:" + this.prop.getProperty("db_type") + "://" + this.prop.getProperty("db_host") + ":" + this.prop.getProperty("db_port") + "/" + this.prop.getProperty("db_name"), 
+					this.prop.getProperty("db_user"), this.prop.getProperty("db_password"));
 
 		} catch (PSQLException e) {
 
@@ -46,23 +70,19 @@ public class ConnectionFactory {
 		} else {
 			System.out.println("Falhou conexao nula!");
 		}
-		
+
 		return connection;
-	}
-	
-	private static Database getDatabase() {
-		
-		Database database = new Database();
-		
-		PropertyValue property = new PropertyValue(); 
-		database.setDbType(property.getPropValue("db_type"));
-		database.setDbHost(property.getPropValue("db_host"));
-		database.setDbPort(property.getPropValue("db_port")); 
-		database.setDbName(property.getPropValue("db_name"));
-		database.setDbUser(property.getPropValue("db_user"));
-		database.setDbPassword(property.getPropValue("db_password"));
-		database.setDbDriver(property.getPropValue("db_driver"));
-		
-		return database;
+	}	
+
+	public static void closeConnection(Connection conn) {
+		System.out.println("Releasing all open resources ...");
+		try {
+			if (conn != null) {
+				conn.close();
+				conn = null;
+			}
+		} catch (SQLException sqle) {
+			sqle.printStackTrace();
+		}
 	}
 }

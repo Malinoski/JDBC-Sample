@@ -5,76 +5,62 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseHelper {
-	
-	public boolean createDatabase(String dbName) {
-		
-		Connection conn = ConnectionFactory.getConnection();		
+
+	public boolean createDatabase(Connection conn, String dbName) {
+
 		Statement stmt = null;
-		
+		boolean result = false;
+
 		try {
 			stmt = conn.createStatement();
-			String sql = "CREATE DATABASE "+dbName+";";
+			String sql = "CREATE DATABASE " + dbName + ";";
 			stmt.executeUpdate(sql);
+			result = true;
 			System.out.println("Database created successfully...");
-		} catch (SQLException se) {
-			// Handle errors for JDBC
-			se.printStackTrace();
-			return false;
-		} catch (Exception e) {
-			// Handle errors for Class.forName
+		} catch (SQLException e) {
 			e.printStackTrace();
-			return false;
+			result = false;			
 		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
+			if (stmt != null) {
+				try {
 					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		}
 		
-		return true;
+		return result;
 	}
-	
-	public boolean dropDatabase(String dbName) {
-		
-		Connection conn = ConnectionFactory.getConnection();		
+
+	public boolean dropDatabase(Connection conn, String dbName) {
+
 		Statement stmt = null;
+		boolean result = false;
 		
 		try {
 			stmt = conn.createStatement();
-			String sql = "DROP DATABASE "+dbName+";";
+			String sql = "DROP DATABASE " + dbName + ";";
 			stmt.executeUpdate(sql);
+			result = true;
 			System.out.println("Database dropped successfully...");
-		} catch (SQLException se) {
-			// Handle errors for JDBC
-			se.printStackTrace();
-			return false;
-		} catch (Exception e) {
-			// Handle errors for Class.forName
+		} catch (SQLException e) {
 			e.printStackTrace();
-			return false;
+			result = false;			
 		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
+			if (stmt != null) {
+				try {
 					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
-		
-		return true;
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		}
+
+		return result;
 	}
 }
