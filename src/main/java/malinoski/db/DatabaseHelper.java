@@ -13,7 +13,7 @@ public class DatabaseHelper {
 
 		try {
 			stmt = conn.createStatement();
-			String sql = "CREATE DATABASE " + dbName + ";";
+			String sql = "CREATE DATABASE IF NOT EXISTS " + dbName + ";";
 			stmt.executeUpdate(sql);
 			result = true;
 			System.out.println("Database created successfully...");
